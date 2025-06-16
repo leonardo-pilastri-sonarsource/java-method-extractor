@@ -5,6 +5,6 @@ import org.sonarsource.java.parsing.AstResult;
 
 public interface IFunctionExtractor {
 
-  List<FunctionInfo> extract(AstResult astResult, String source, int minLines);
+  List<FunctionInfo> extract(AstResult astResult, String source, int minLines, boolean oneline);
 
 }

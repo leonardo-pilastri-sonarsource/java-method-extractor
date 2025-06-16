@@ -10,9 +10,9 @@ The output is a series of text files, each containing the methods found for a si
 ## 🛠 Features
 
 - ✅ Recursively collects `.java` files
-- ✅ Parses each file using Eclipse JDT
+- ✅ Parses each file using Eclipse JDT or TreeSitter
 - ✅ Extracts all method bodies (with declaration)
-- ✅ Outputs one file per source file in a `.txt` format
+- ✅ Outputs one file per method in a `.txt` format
 - ✅ Supports both local directory inspection and GitHub repo cloning in a temporary directory
 
 ---
@@ -66,3 +66,5 @@ By default, the Eclipse Compiler for Java is used.
 
 You can also set the minimum number of lines for a method to be extracted with the `--ml <number>` flag.
 By default, this is set to 0, meaning all methods will be extracted regardless of their length.
+
+Use the flag `--oneline` if you wish the output methods to be in a single line.

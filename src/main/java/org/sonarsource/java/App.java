@@ -20,18 +20,20 @@ import org.sonarsource.java.parsing.TSitParser;
 public class App {
 
   private static final List<String> allMethodsText = new ArrayList<>();
+  private static boolean oneLine = false;
   private static int minLines = 0;
   private static IParser parser;
   private static IFunctionExtractor functionExtractor;
 
   /**
    * @param args List of arguments:
-   *             1st mandatory: --local or --github
-   *             2nd mandatory: path to local directory or GitHub repository URL
-   *             3rd mandatory: output directory name
-   *             optional: --ml <minLines> to set the minimum number of lines for a method to be evaluated
-   *             --ecj to use ECJ parser (default)
-   *             --ts to use Tree-sitter parser
+   *             <p>1st mandatory: --local or --github</p>
+   *             <p>2nd mandatory: path to local directory or GitHub repository URL</p>
+   *             <p>3rd mandatory: output directory name</p>
+   *             <p>--ml <minLines> to set the minimum number of lines for a method to be evaluated</p>
+   *             <p>--ecj to use ECJ parser (default)</p>
+   *             <p>--ts to use Tree-sitter parser</p>
+   *             <p>--oneline to write the methods as oneliners</p>
    */
   public static void main(String[] args) throws IOException {
     if (args.length < 3) {
@@ -61,7 +63,7 @@ public class App {
 
       AstResult astResult = parser.parse(path.toFile().getName(), code);
       if (astResult != null) {
-        List<FunctionInfo> functions = functionExtractor.extract(astResult, code, minLines);
+        List<FunctionInfo> functions = functionExtractor.extract(astResult, code, minLines, oneLine);
         FilesUtil.writeMethodsToFile(functions, path, outputDir);
       }
     }
@@ -141,6 +143,8 @@ public class App {
     } else if ("--ts".equals(args[idx])) {
       functionExtractor = new TSitFunctionExtractor();
       parser = new TSitParser();
+    } else if ("--oneline".equals(args[idx])) {
+      oneLine = true;
     } else {
       System.err.println("Unknown argument: " + args[idx]);
       System.exit(1);
