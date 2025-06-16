@@ -1,6 +1,6 @@
 # Java Method Extractor
 
-Extracts all method definitions (including body) from `.java` files found in a given source — either a local directory 
+Extracts all method definitions (including body) from `.java` files found in a given source — either a local directory
 or a public GitHub repository.
 
 The output is a series of text files, each containing the methods found for a single Java file.
@@ -13,7 +13,7 @@ The output is a series of text files, each containing the methods found for a si
 - ✅ Parses each file using Eclipse JDT
 - ✅ Extracts all method bodies (with declaration)
 - ✅ Outputs one file per source file in a `.txt` format
-- ✅ Supports both local directory inspection and GitHub repo cloning
+- ✅ Supports both local directory inspection and GitHub repo cloning in a temporary directory
 
 ---
 
@@ -21,12 +21,14 @@ The output is a series of text files, each containing the methods found for a si
 
 #### Prerequisites
 
-- Java 17 or later
-- Maven (`mvn`) to build the project
+- Java 17 or later: https://jdk.java.net/archive/#:~:text=17.0.2%20(build%2017.0.2%2B8)
+- Maven (`mvn`) to build the project: https://maven.apache.org/download.cgi
 
 ---
 
 #### 📦 Build the Executable JAR
+
+From the root directory of the project, run:
 
 ```bash
 mvn clean package
@@ -36,22 +38,31 @@ mvn clean package
 
 After building, you can run the generated JAR with dependencies under the target folder:
 
+From the root directory of the project, run:
+
 ```bash
-java -jar java-method-extractor-1.0-jar-with-dependencies.jar <mode> <input> <output-dir>
+java -jar target/java-method-extractor-1.0-jar-with-dependencies.jar <mode> <inputPath> <outputDir>
 ```
 
-| Mode       | Description                        | Example Input                      |
+| Mode       | Description                        | Example Input Path                 |
 |------------|------------------------------------|------------------------------------|
 | `--local`  | Use a local directory              | `/home/user/myproject`             |
 | `--github` | Clone a public GitHub repo (HTTPS) | `https://github.com/user/repo.git` |
 
-With `--github` mode, the GitHub repository specified as `<input>` will be cloned in a temporary directory.
+With `--github` mode, the GitHub repository specified as `<inputPath>` will be cloned in a temporary directory.
 
-`<output-dir>` is the path where all the text files will be generated.
+`<outputDir>` is the path where all the text files will be generated.
 
 ```
-output-dir/
+outputDir/
 ├── Main.txt
 ├── Utils.txt
 ├── MyClass.txt
 ```
+
+You can also specify which parser to use between the Eclipse Compiler for Java and TreeSitter with the respective flags:
+`--ecj` or `--ts`.
+By default, the Eclipse Compiler for Java is used.
+
+You can also set the minimum number of lines for a method to be extracted with the `--ml <number>` flag.
+By default, this is set to 0, meaning all methods will be extracted regardless of their length.

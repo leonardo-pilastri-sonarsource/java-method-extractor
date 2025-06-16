@@ -1,4 +1,4 @@
-package org.sonarsource.java;
+package org.sonarsource.java.extracting;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,22 +7,25 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.sonarsource.java.parsing.ECJParser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionExtractorTest {
 
+  ECJParser parser = new ECJParser();
+
   @ParameterizedTest(name = "Normalized output should match for input: {0}")
   @MethodSource("provideNormalizationSamples")
   void testNormalizeMethodText(String input, String expected) {
-    String actual = FunctionExtractor.testNormalizedMethodText(input);
+    String actual = TextNormalizer.testNormalizedMethodText(parser, input);
     assertEquals(expected, actual);
   }
 
   @Test
   void testNormalizeMethodText_emptyAndNull() {
-    assertEquals("", FunctionExtractor.testNormalizedMethodText(""));
-    assertEquals("", FunctionExtractor.testNormalizedMethodText(null));
+    assertEquals("", TextNormalizer.testNormalizedMethodText(parser, ""));
+    assertEquals("", TextNormalizer.testNormalizedMethodText(parser, null));
   }
 
   private static Stream<Arguments> provideNormalizationSamples() {
