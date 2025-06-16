@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.sonarsource.java.parsing.ECJParser;
+import org.sonarsource.java.utils.PerformanceMetrics;
 import org.treesitter.TSNode;
 
 public class TextNormalizer {
@@ -86,7 +87,7 @@ public class TextNormalizer {
   //for testing purposes
   protected static String testNormalizedMethodText(ECJParser parser, String methodText, boolean oneline) {
     String compilationUnitSourceCode = "class C { " + methodText + " }";
-    var ast = parser.parse("C", compilationUnitSourceCode);
+    var ast = parser.parse("C", compilationUnitSourceCode, new PerformanceMetrics());
     var comments = ECJFunctionExtractor.getComments((CompilationUnit) ast.ast());
     var text = normalizeECJMethodText(methodText, 10, comments);
     if (oneline) {

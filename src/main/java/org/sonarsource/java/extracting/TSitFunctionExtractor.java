@@ -1,24 +1,31 @@
 package org.sonarsource.java.extracting;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.sonarsource.java.parsing.AstResult;
+import org.sonarsource.java.utils.PerformanceMetrics;
 import org.treesitter.TSNode;
 
 public class TSitFunctionExtractor implements IFunctionExtractor {
 
   @Override
-  public List<FunctionInfo> extract(AstResult astResult, String source, int minLines, boolean oneline) {
+  public List<FunctionInfo> extract(AstResult astResult, String source, int minLines, boolean oneline, PerformanceMetrics metrics) {
+    Instant startTime = Instant.now();
     if (!(astResult.ast() instanceof TSNode rootNode)) {
       throw new RuntimeException("Root node is not a TSNode");
     }
     List<FunctionInfo> list = new ArrayList<>();
-    traverse(rootNode, source, list, minLines, oneline);
+    traverse(rootNode, source, list, minLines, oneline, metrics);
+
+    Duration processingTime = Duration.between(startTime, Instant.now());
+    metrics.recordExtractionTime(processingTime.toNanos());
     return list;
   }
 
-  private static void traverse(TSNode node, String source, List<FunctionInfo> out, int minLines, boolean oneline) {
+  private static void traverse(TSNode node, String source, List<FunctionInfo> out, int minLines, boolean oneline, PerformanceMetrics metrics) {
     String type = node.getType();
     if ("method_declaration".equals(type) || "constructor_declaration".equals(type)) {
       int start = node.getStartByte();
@@ -31,6 +38,8 @@ public class TSitFunctionExtractor implements IFunctionExtractor {
         var comments = new ArrayList<TSNode>();
         getComments(node, source.getBytes(), comments);
         comments.sort(Comparator.comparingInt(TSNode::getStartByte));
+
+        Instant normStartTime = Instant.now();
         String normalizedContent = TextNormalizer.normalizeTSMethodText(content, node.getStartByte(), comments);
         if (normalizedContent.lines().count() < minLines) {
           return;
@@ -38,6 +47,10 @@ public class TSitFunctionExtractor implements IFunctionExtractor {
         if (oneline) {
           normalizedContent = TextNormalizer.normalizeOneLine(normalizedContent);
         }
+
+        Duration normProcessingTime = Duration.between(normStartTime, Instant.now());
+        metrics.recordNormalizationTime(normProcessingTime.toNanos());
+
         out.add(new FunctionInfo(name, content, normalizedContent, 0));
       }
       return; // don't recurse inside methods
@@ -47,7 +60,7 @@ public class TSitFunctionExtractor implements IFunctionExtractor {
     for (int i = 0; i < childCnt; i++) {
       TSNode child = node.getChild(i);
       if (child != null) {
-        traverse(child, source, out, minLines, oneline);
+        traverse(child, source, out, minLines, oneline, metrics);
       }
     }
   }

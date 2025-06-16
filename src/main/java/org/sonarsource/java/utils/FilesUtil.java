@@ -1,4 +1,4 @@
-package org.sonarsource.java;
+package org.sonarsource.java.utils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

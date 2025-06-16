@@ -68,3 +68,14 @@ You can also set the minimum number of lines for a method to be extracted with t
 By default, this is set to 0, meaning all methods will be extracted regardless of their length.
 
 Use the flag `--oneline` if you wish the output methods to be in a single line.
+
+
+At the end of the process, the output folder will also contain a `performance_metrics.txt` file of this format:
+```
+Performance Metrics:
+--------------------
+Total AST Generation Time: 259143600 ns  ~ 259.14 ms
+Number of AST Generated: 16
+Total Extraction Time: 7514500 ns ~ 7.51 ms
+--of which normalization time: 5510900 ns ~ 5.51 ms
+```

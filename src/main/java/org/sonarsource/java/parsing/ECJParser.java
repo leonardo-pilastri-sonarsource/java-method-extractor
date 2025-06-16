@@ -1,11 +1,13 @@
 package org.sonarsource.java.parsing;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.sonarsource.java.utils.PerformanceMetrics;
 
 public class ECJParser implements IParser {
 
@@ -21,7 +23,8 @@ public class ECJParser implements IParser {
     parser.setBindingsRecovery(false);
   }
 
-  public AstResult parse(String unitName, String sourceCode) {
+  public AstResult parse(String unitName, String sourceCode, PerformanceMetrics metrics) {
+    Instant startTime = Instant.now();
     parser.setUnitName(unitName);
     parser.setSource(sourceCode.toCharArray());
     try {
@@ -29,6 +32,9 @@ public class ECJParser implements IParser {
     } catch (Exception e) {
       System.err.println("ECJ: Unable to parse file" + e.getMessage());
       return null;
+    } finally {
+      Duration processingTime = Duration.between(startTime, Instant.now());
+      metrics.recordAstGenerationTime(processingTime.toNanos());
     }
   }
 

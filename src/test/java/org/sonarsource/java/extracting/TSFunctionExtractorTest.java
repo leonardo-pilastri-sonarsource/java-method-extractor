@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonarsource.java.parsing.TSitParser;
+import org.sonarsource.java.utils.PerformanceMetrics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,8 +21,9 @@ class TSFunctionExtractorTest {
   @MethodSource("provideNormalizationSamples")
   void testNormalizeMethodText(String input, String expected) {
     input = "class C { " + input + " }";
-    var ast = parser.parse("Test", input);
-    List<FunctionInfo> functions = extractor.extract(ast, input, 0, true);
+    var pm = new PerformanceMetrics();
+    var ast = parser.parse("Test", input, pm);
+    List<FunctionInfo> functions = extractor.extract(ast, input, 0, true, pm);
     assertEquals(1, functions.size());
     FunctionInfo function = functions.get(0);
     assertEquals(expected, function.normalizedContent());

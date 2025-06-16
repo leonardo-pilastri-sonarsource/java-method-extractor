@@ -1,4 +1,4 @@
-package org.sonarsource.java;
+package org.sonarsource.java.utils;
 
 import java.io.File;
 import java.io.IOException;

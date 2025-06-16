@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonarsource.java.extracting.ECJFunctionExtractor;
 import org.sonarsource.java.extracting.FunctionInfo;
@@ -16,10 +14,12 @@ import org.sonarsource.java.parsing.AstResult;
 import org.sonarsource.java.parsing.ECJParser;
 import org.sonarsource.java.parsing.IParser;
 import org.sonarsource.java.parsing.TSitParser;
+import org.sonarsource.java.utils.FilesUtil;
+import org.sonarsource.java.utils.GitUtils;
+import org.sonarsource.java.utils.PerformanceMetrics;
 
 public class App {
 
-  private static final List<String> allMethodsText = new ArrayList<>();
   private static boolean oneLine = false;
   private static int minLines = 0;
   private static IParser parser;
@@ -58,15 +58,17 @@ public class App {
 
     var javaFiles = collectJavaFiles(repoDir);
 
+    PerformanceMetrics performanceMetrics = new PerformanceMetrics();
+
     for (Path path : javaFiles) {
       String code = Files.readString(path, StandardCharsets.UTF_8);
-
-      AstResult astResult = parser.parse(path.toFile().getName(), code);
+      AstResult astResult = parser.parse(path.toFile().getName(), code, performanceMetrics);
       if (astResult != null) {
-        List<FunctionInfo> functions = functionExtractor.extract(astResult, code, minLines, oneLine);
+        List<FunctionInfo> functions = functionExtractor.extract(astResult, code, minLines, oneLine, performanceMetrics);
         FilesUtil.writeMethodsToFile(functions, path, outputDir);
       }
     }
+    savePerformanceMetricsFile(performanceMetrics, outputDir);
   }
 
   private static Path getRepoPathByMode(String mode, String inputPath) {
@@ -102,7 +104,7 @@ public class App {
       javaFiles = paths
         .filter(Files::isRegularFile)
         .filter(p -> p.toString().endsWith(".java"))
-        .collect(Collectors.toList());
+        .toList();
     }
     return javaFiles;
   }
@@ -158,6 +160,17 @@ public class App {
     } catch (NumberFormatException e) {
       System.err.println("Invalid value for --ml: " + arg);
       System.exit(1);
+    }
+  }
+
+  private static void savePerformanceMetricsFile(PerformanceMetrics metrics, Path outputDir) {
+    Path metricsFile = outputDir.resolve("performance_metrics.txt");
+    try {
+      Files.writeString(metricsFile, metrics.toString(), StandardCharsets.UTF_8);
+      System.out.println("Performance metrics saved to " + metricsFile.toAbsolutePath());
+      System.out.println(metrics);
+    } catch (IOException e) {
+      System.err.println("Failed to save performance metrics: " + e.getMessage());
     }
   }
 
