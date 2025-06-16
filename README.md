@@ -74,8 +74,9 @@ At the end of the process, the output folder will also contain a `performance_me
 ```
 Performance Metrics:
 --------------------
-Total AST Generation Time: 259143600 ns  ~ 259.14 ms
-Number of AST Generated: 16
-Total Extraction Time: 7514500 ns ~ 7.51 ms
---of which normalization time: 5510900 ns ~ 5.51 ms
+Total AST Generation Time: 1180195800 ns  ~ 1180.20 ms
+Number of AST Generated: 1168
+Total Methods Collected: 4945
+Total Extraction Time: 131628300 ns ~ 131.63 ms
+--of which normalization time: 103878800 ns ~ 103.88 ms
 ```

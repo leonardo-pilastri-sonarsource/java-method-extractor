@@ -65,7 +65,9 @@ public class App {
       AstResult astResult = parser.parse(path.toFile().getName(), code, performanceMetrics);
       if (astResult != null) {
         List<FunctionInfo> functions = functionExtractor.extract(astResult, code, minLines, oneLine, performanceMetrics);
-        FilesUtil.writeMethodsToFile(functions, path, outputDir);
+        if (!functions.isEmpty()) {
+          FilesUtil.writeMethodsToFile(functions, path, outputDir, oneLine);
+        }
       }
     }
     savePerformanceMetricsFile(performanceMetrics, outputDir);

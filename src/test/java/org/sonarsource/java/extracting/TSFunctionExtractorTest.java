@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,6 +28,19 @@ class TSFunctionExtractorTest {
     assertEquals(1, functions.size());
     FunctionInfo function = functions.get(0);
     assertEquals(expected, function.normalizedContent());
+  }
+
+  @Test
+  void testMethodsWithoutBody(){
+    var code = """
+      interface I {
+        void m1();
+      }
+      """;
+    var pm = new PerformanceMetrics();
+    var ast = parser.parse("Test", code, pm);
+    List<FunctionInfo> functions = extractor.extract(ast, code, 0, true, pm);
+    assertEquals(0, functions.size());
   }
 
   private static Stream<Arguments> provideNormalizationSamples() {

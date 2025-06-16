@@ -22,12 +22,16 @@ public class TSitFunctionExtractor implements IFunctionExtractor {
 
     Duration processingTime = Duration.between(startTime, Instant.now());
     metrics.recordExtractionTime(processingTime.toNanos());
+    metrics.recordMethodsCollected(list.size());
     return list;
   }
 
   private static void traverse(TSNode node, String source, List<FunctionInfo> out, int minLines, boolean oneline, PerformanceMetrics metrics) {
     String type = node.getType();
     if ("method_declaration".equals(type) || "constructor_declaration".equals(type)) {
+      if(node.getChild(4).isNull()){
+        return; // skip methods without body
+      }
       int start = node.getStartByte();
       int end = node.getEndByte();
       String content = source.substring(start, Math.min(end, source.length()));

@@ -26,6 +26,9 @@ public class ECJFunctionExtractor implements IFunctionExtractor {
     cu.accept(new ASTVisitor() {
       @Override
       public boolean visit(MethodDeclaration node) {
+        if(node.getBody() == null){
+          return false; // skip methods without body
+        }
         int start = node.getStartPosition();
         int length = node.getLength();
         String methodName = node.getName().getIdentifier();
@@ -49,6 +52,7 @@ public class ECJFunctionExtractor implements IFunctionExtractor {
 
     Duration processingTime = Duration.between(startTime, Instant.now());
     metrics.recordExtractionTime(processingTime.toNanos());
+    metrics.recordMethodsCollected(methodList.size());
     return methodList;
   }
 
